@@ -11,10 +11,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     QString command = "mplayer /home/sarith/Downloads/song1.mp4";
     //sleep(5);
-    //system("mkfifo /tmp/mplayer-control");
-    system("mplayer -slave -fs -input file=/tmp/mplayer-control /home/sarith/Videos/jerm_song.DAT");
+    system("mkfifo /tmp/mplayer-control");
+    system("mplayer -slave -fs -input file=/tmp/mplayer-control /home/sarith/Videos/jerm_song.DAT -af pan=2:1:1:0:0");
     //msleep(100);
-    system("echo \"af pan=2:1:1:0:0\" > /tmp/mplayer-control");
+    //system("echo \"af pan=2:1:1:0:0\" > /tmp/mplayer-control");
     //system(qPrintable(command));
     //ui->setupUi(this);
 }
