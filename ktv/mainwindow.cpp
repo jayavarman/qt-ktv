@@ -1,9 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QCoreApplication>
 #include <string>
 #include <QMutex>
 #include <QWaitCondition>
 #include <QDebug>
+#include <QtSql/QtSql>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,11 +24,29 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mplayer_proc = new QProcess( parent );
     connect( mplayer_proc, SIGNAL( finished(int) ), this, SLOT( exitedMPlayer(int) ) );
-    //connect( mplayer_proc, SIGNAL( wroteToStdin () ), this, SLOT( wroteToStdinMPlayer() ) );
-    //connect( mplayer_proc, SIGNAL( readyReadStderr () ), this, SLOT( readyReadStderrMPlayer() ) );
-    //connect( mplayer_proc, SIGNAL( readyReadStdout() ), this, SLOT( readStdoutMPlayer() ) );
-    mplayer_proc->start("mplayer -slave -fs -input file=/tmp/mplayer-control /home/sarith/Videos/song1.mp4");
+    //mplayer_proc->start("mplayer -slave -fs -input file=/tmp/mplayer-control /home/sarith/Videos/song1.mp4");
 
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("/home/sarith/ex1");
+    bool ok = db.open();
+    if(ok){
+        QSqlQuery query;
+        query.prepare("SELECT * FROM tbl1");
+        if(!query.exec()){
+            qDebug() << query.lastError();
+        } else {
+            QSqlRecord rec = query.record();
+            int cols = rec.count();
+            qDebug() << cols;
+
+            for( int r=0; query.next(); r++ )
+                  for( int c=0; c<cols; c++ )
+                    qDebug() << QString( "Row %1, %2: %3" ).arg( r ).arg( rec.fieldName(c) ).arg( query.value(c).toString() );
+
+        }
+    }
+    db.close();
+    qDebug() << ok;
 }
 
 MainWindow::~MainWindow()
@@ -47,5 +67,5 @@ void MainWindow::msleep(unsigned long msecs)
 
 void MainWindow::exitedMPlayer(int exitCode) {
     qDebug() << "MPlayer exited." << exitCode;
-    mplayer_proc->start("mplayer -slave -fs -input file=/tmp/mplayer-control /home/sarith/Videos/jerm_song.DAT");
+    //mplayer_proc->start("mplayer -slave -fs -input file=/tmp/mplayer-control /home/sarith/Videos/jerm_song.DAT");
 }
