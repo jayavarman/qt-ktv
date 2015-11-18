@@ -20,9 +20,12 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QWidget *widget;
 
 private slots:
     void exitedMPlayer(int exitCode);
+    void nextSong();
+    void pauseSong();
 };
 
 #endif // MAINWINDOW_H

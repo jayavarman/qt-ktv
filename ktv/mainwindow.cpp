@@ -6,6 +6,8 @@
 #include <QWaitCondition>
 #include <QDebug>
 #include <QtSql/QtSql>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,9 +24,23 @@ MainWindow::MainWindow(QWidget *parent) :
     //system(qPrintable(command));
     //ui->setupUi(this);
 
+    widget = new QWidget;
+    setCentralWidget(widget);
+    qDebug() << widget->winId();
     mplayer_proc = new QProcess( parent );
     connect( mplayer_proc, SIGNAL( finished(int) ), this, SLOT( exitedMPlayer(int) ) );
-    //mplayer_proc->start("mplayer -slave -fs -input file=/tmp/mplayer-control /home/sarith/Videos/song1.mp4");
+    //mplayer_proc->setProcessChannelMode(QProcess::MergedChannels);
+    //mplayer_proc->start("mplayer -slave -wid " + QString::number(widget->winId()) + "  -input file=/tmp/mplayer-control /home/sarith/Videos/jerm_song.DAT");
+    mplayer_proc->start("mplayer -slave -input file=/tmp/mplayer-control /home/sarith/Videos/jerm_song.DAT");
+    /*QWindow::fromWinId(this->winId());*/
+    QPushButton *btnPause = new QPushButton("Pause", this);
+    QPushButton *btnNext = new QPushButton("Next", this);
+    QVBoxLayout *vLayout = new QVBoxLayout;
+    vLayout->addWidget(btnPause);
+    vLayout->addWidget(btnNext);
+    widget->setLayout(vLayout);
+    connect(btnPause, SIGNAL( clicked() ), this, SLOT( pauseSong() ) );
+    connect(btnNext, SIGNAL( clicked() ), this, SLOT( nextSong() ) );
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("/home/sarith/ex1");
@@ -67,5 +83,15 @@ void MainWindow::msleep(unsigned long msecs)
 
 void MainWindow::exitedMPlayer(int exitCode) {
     qDebug() << "MPlayer exited." << exitCode;
-    //mplayer_proc->start("mplayer -slave -fs -input file=/tmp/mplayer-control /home/sarith/Videos/jerm_song.DAT");
+    mplayer_proc->start("mplayer -slave  -input file=/tmp/mplayer-control  /home/sarith/Videos/song1.mp4");
+}
+
+void MainWindow::nextSong(){
+    qDebug() << "next song";
+    system("echo quit > /tmp/mplayer-control");
+}
+
+void MainWindow::pauseSong(){
+   qDebug() << "pause song";
+   system("echo pause > /tmp/mplayer-control");
 }
