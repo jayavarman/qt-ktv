@@ -3,13 +3,14 @@
 
 #include <QMainWindow>
 #include <QProcess>
+#include <QListWidgetItem>
+#include "songlistitem.h"
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow{
     Q_OBJECT
 
 public:
@@ -24,8 +25,11 @@ private:
 
 private slots:
     void exitedMPlayer(int exitCode);
-    void nextSong();
-    void pauseSong();
+    void on_nextButton_clicked();
+    void on_playButton_clicked();
+    void on_vocalButton_clicked();
+    void on_stereoButton_clicked();
+    void on_songList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 };
 
 #endif // MAINWINDOW_H
