@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect( mplayer_proc, SIGNAL( finished(int) ), this, SLOT( exitedMPlayer(int) ) );
     //mplayer_proc->setProcessChannelMode(QProcess::MergedChannels);
     //mplayer_proc->start("mplayer -slave -wid " + QString::number(widget->winId()) + "  -input file=/tmp/mplayer-control /home/sarith/Videos/jerm_song.DAT");
-    mplayer_proc->start("mplayer -slave -input file=/tmp/mplayer-control /home/sarith/Music/16/464.DAT");
+    mplayer_proc->start("mplayer -slave -geometry 0:0 -input file=/tmp/mplayer-control /home/sarith/Music/16/464.DAT");
     /*QWindow::fromWinId(this->winId());*/
     /*QPushButton *btnPause = new QPushButton("Pause", this);
     QPushButton *btnNext = new QPushButton("Next", this);
@@ -97,7 +97,7 @@ void MainWindow::exitedMPlayer(int exitCode) {
     QString code = myitem->getSongCode();
     QString folderCode = code.left(2);
     QString fileCode = code.right(3);
-    mplayer_proc->start("mplayer -slave  -input file=/tmp/mplayer-control  /home/sarith/Music/" + folderCode + "/" + fileCode + ".DAT");
+    mplayer_proc->start("mplayer -slave -geometry 0:0 -input file=/tmp/mplayer-control  /home/sarith/Music/" + folderCode + "/" + fileCode + ".DAT");
 }
 
 void MainWindow::on_nextButton_clicked()
