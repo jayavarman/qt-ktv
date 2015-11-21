@@ -5,6 +5,7 @@
 #include <QProcess>
 #include <QListWidgetItem>
 #include "songlistitem.h"
+#include <QSqlDatabase>
 
 namespace Ui {
     class MainWindow;
@@ -22,6 +23,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QWidget *widget;
+    QSqlDatabase db;
 
 private slots:
     void exitedMPlayer(int exitCode);
@@ -29,7 +31,9 @@ private slots:
     void on_playButton_clicked();
     void on_vocalButton_clicked();
     void on_stereoButton_clicked();
-    void on_songList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void on_songList_itemClicked(QListWidgetItem *item);
+    void on_singerList_itemClicked(QListWidgetItem *item);
+    void on_addToPlayListButton_clicked();
 };
 
 #endif // MAINWINDOW_H
