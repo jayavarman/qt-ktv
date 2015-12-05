@@ -6,6 +6,7 @@
 #include <QListWidgetItem>
 #include "songlistitem.h"
 #include <QSqlDatabase>
+#include <QTcpSocket>
 
 namespace Ui {
     class MainWindow;
@@ -24,6 +25,7 @@ private:
     Ui::MainWindow *ui;
     QWidget *widget;
     QSqlDatabase db;
+    QTcpSocket *socket;
 
 private slots:
     void exitedMPlayer(int exitCode);

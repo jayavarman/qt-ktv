@@ -11,6 +11,15 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
+    socket = new QTcpSocket();
+
+    int port = 1983;
+    socket->connectToHost("localhost", port);
+
+    if(!socket->waitForConnected(3000))
+    {
+        qDebug() << "Error: " << socket->errorString();
+    }
     //QString command = "mplayer /home/sarith/Downloads/song1.mp4";
     //sleep(5);
     //system("mkfifo /tmp/mplayer-control");
@@ -42,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(btnNext, SIGNAL( clicked() ), this, SLOT( nextSong() ) );*/
 
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/home/sarith/qt-ktv/ktv/ktv.sqlite");
+    db.setDatabaseName("/home/sarith/Developments/qt-ktv/ktv/ktv.sqlite");
     bool ok = db.open();
     if(ok){
         QSqlQuery query;
@@ -79,6 +88,8 @@ MainWindow::~MainWindow(){
     delete mplayer_proc;
     delete ui;
     db.close();
+    socket->close();
+    socket->destroyed();
 }
 
 void MainWindow::msleep(unsigned long msecs){
@@ -92,75 +103,76 @@ void MainWindow::msleep(unsigned long msecs){
 }
 
 void MainWindow::exitedMPlayer(int exitCode) {
-    qDebug() << "MPlayer exited." << exitCode;
+   // qDebug() << "MPlayer exited." << exitCode;
     QListWidgetItem *item = ui->listPlayList->takeItem(0);
     SongListItem *myitem = dynamic_cast<SongListItem*>(item);
-    qDebug() << "code: " << myitem->getSongCode();
+    //qDebug() << "code: " << myitem->getSongCode();
     QString code = myitem->getSongCode();
-    qDebug() << "play song code " << code;
+    //qDebug() << "play song code " << code;
     QString folderCode = code.left(2);
     QString fileCode = code.right(3);
     //qDebug() << "mplayer -slave -geometry 0:0 -input file=/tmp/mplayer-control  /media/sarith/MyPassport/Karaoke/" + folderCode + "/" + fileCode + ".dat";
-    QString filename = "/media/sarith/MyPassport/Karaoke/" + folderCode + "/" + fileCode + ".dat";
+    QString filename = "/home/sarith/Desktop/ktv-songs/" + folderCode + "/" + fileCode + ".dat";
     QFile file(filename);
     if( !file.exists() ){
-        filename = "/media/sarith/MyPassport/Karaoke/" + folderCode + "/" + fileCode + ".avi";
+        filename = "/home/sarith/Desktop/ktv-songs/" + folderCode + "/" + fileCode + ".avi";
         QFile file(filename);
         if( !file.exists() ){
-            filename = "/media/sarith/MyPassport/Karaoke/" + folderCode + "/" + fileCode + ".DAT";
+            filename = "/home/sarith/Desktop/ktv-songs/" + folderCode + "/" + fileCode + ".DAT";
         }
     }
+    qDebug() << "playing file: " << filename;
     mplayer_proc->start("mplayer -slave -geometry 0:0 -input file=/tmp/mplayer-control  " + filename);
 }
 
 void MainWindow::on_nextButton_clicked()
 {
-    qDebug() << "next song";
+    //qDebug() << "next song";
     system("echo quit > /tmp/mplayer-control");
 }
 
 void MainWindow::on_playButton_clicked()
 {
-    qDebug() << "pause song";
+    //qDebug() << "pause song";
     system("echo pause > /tmp/mplayer-control");
 }
 
 void MainWindow::on_vocalButton_clicked()
 {
-    qDebug() << "karaoke mode";
+    //qDebug() << "karaoke mode";
     system("echo af pan=2:1:1:0:0 > /tmp/mplayer-control");
 }
 
 void MainWindow::on_stereoButton_clicked()
 {
-    qDebug() << "stereo mode";
+    //qDebug() << "stereo mode";
     system("echo af pan=2:0:0:1:1 > /tmp/mplayer-control");
 }
 
 void MainWindow::on_songList_itemClicked(QListWidgetItem *item)
 {
     SongListItem *myitem = dynamic_cast<SongListItem*>(item);
-    qDebug() << "my item code: " << myitem->getSongCode();
-    qDebug() << "item selected " << item->text();
+    //qDebug() << "my item code: " << myitem->getSongCode();
+    //qDebug() << "item selected " << item->text();
 }
 
 void MainWindow::on_singerList_itemClicked(QListWidgetItem *item)
 {
     QString singer = item->text();
-    qDebug() << "singer " << singer;
+    //qDebug() << "singer " << singer;
     //return;
     if(db.open()){
         QSqlQuery query;
-        qDebug() << "SELECT code,title FROM songs WHERE singer='" + singer + "' ORDER BY title ASC";
+        //qDebug() << "SELECT code,title FROM songs WHERE singer='" + singer + "' ORDER BY title ASC";
         query.prepare("SELECT code,title FROM songs WHERE singer='" + singer + "' ORDER BY title ASC");
-        qDebug() << "111111111";
+        //qDebug() << "111111111";
         if(!query.exec()){
             qDebug() << query.lastError();
         } else {
             ui->songList->clear();
-            qDebug() << "3333333";
+            //qDebug() << "3333333";
             SongListItem *item;
-            qDebug() << "22222222";
+            //qDebug() << "22222222";
             for( int r=0; query.next(); r++ ){
                 item = new SongListItem();
                 item->setText(query.value(1).toString() + " (" + query.value(0).toString() + ")");
@@ -175,9 +187,6 @@ void MainWindow::on_singerList_itemClicked(QListWidgetItem *item)
 void MainWindow::on_addToPlayListButton_clicked()
 {
     SongListItem *item = dynamic_cast<SongListItem*>(ui->songList->currentItem());
-            /*item = new SongListItem();
-            item->setText(query1.value(1).toString());
-            item->setSongCode(query1.value(0).toString());*/
     qDebug() << "before add " << item->text() << " code " << item->getSongCode();
     SongListItem *item2 = new SongListItem;
     item2->setText(item->text());
@@ -185,4 +194,10 @@ void MainWindow::on_addToPlayListButton_clicked()
     item2->setFlags(0);
     ui->listPlayList->addItem(item2);
     ui->listPlayList->setCurrentRow(0);
+
+    if(socket->isWritable()){
+        QByteArray code (item->getSongCode().toStdString().c_str());
+        socket->write(code);
+        socket->waitForBytesWritten(1000);
+    }
 }

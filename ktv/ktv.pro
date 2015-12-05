@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
+QT       += core gui sql network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,9 +14,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    songlistitem.cpp
+    songlistitem.cpp \
+    ktvtcpserver.cpp \
+    ktvthread.cpp
 
 HEADERS  += mainwindow.h \
-    songlistitem.h
+    songlistitem.h \
+    ktvtcpserver.h \
+    ktvthread.h
 
 FORMS    += mainwindow.ui
